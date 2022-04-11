@@ -26,14 +26,16 @@ This returns a dataframe where the rows are genes/loci with one column per
 report. (Typically each report corresponds to one sample). The  and the columns are
 }
 \examples{
+ddir <- system.file("extdata", package="scopetools")
+t_files <- file.path(ddir, paste0(samples.encode$GEO_sample, '-telescope_report.tsv'))
+names(t_files) <- samples.encode$Name
+
+# Provide all_locs to include all annotated loci (preferred)
+herv_counts <- load_telescope_reports(t_files, all_locs=HERVrmsk.hg38.v2$locus)
+
+# Contstruct table with loci that appear in reports
 \dontrun{
-   t_files <- file.path('samples', samples$sample_id, 'telescope.report.tsv')
-   names(t_files) <- samples$sample_id
-   herv_counts <- load_telescope_reports(t_files)
-   
-   # If you have the annotation locs in a table, this will maintain
-   # the ordering
-   herv_counts <- load_telescope_reports(t_files, retro.annot$locus)
-   
+herv_counts <- load_telescope_reports(t_files)
 }
+
 }
