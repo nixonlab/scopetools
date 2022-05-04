@@ -1,19 +1,23 @@
 #' Load counts from multiple Telescope reports
 #'
-#' This returns a dataframe where the rows are genes/loci with one column per
-#' report. (Typically each report corresponds to one sample). The  and the columns are
+#' This returns a dataframe where the rows are genes/loci and columns are
+#' samples. If `files` is a named vector, the names are used as sample
+#' names; otherwise sample names can be provided by `colnames`. If not
+#' provided, unique strings will be extracted from the report filenames.
 #'
-#'
-#' @param files A character vector with paths to the reports. If a named vector, the
-#'    names will be used as the column names.
+#' @param files A character vector with paths to the reports.
+#' @param colnames Output column names. If `files` is a named vector, the names
+#'    will be used as column names. Otherwise finds a unique string
+#'    from the report filenames.
+#' @param all_locs A character vector with all genes/loci to be included
+#'    in the output; typically this is a list of all loci in the annotation.
+#'    If not provided, the loci will be the union of loci in all reports, in
+#'    an arbitrary order.
 #' @param count_column The column in the Telescope report to use.
 #'    Defaults is 'final_count'
-#' @param all_locs A character vector with the loci to include, possibly
-#'    extracted from the annotation. If not provided, all loci appearing
-#'    in the reports will be used in an arbitrary order.
 #'
 #' @return A dataframe where the rows are genes/loci and the columns are
-#'    reports. Typically each report will correspond to one sample.
+#'    samples (when each report corresponds to one sample).
 #' @export
 #'
 #' @examples
@@ -29,42 +33,48 @@
 #' herv_counts <- load_telescope_reports(t_files)
 #' }
 #'
-load_telescope_reports <- function(files, count_column='final_count', all_locs=NULL) {
-
-    if(is.null(names(files))) {
-         # `files` was not a named vector
-         # Create sample names by removing longest prefix and suffix from file names
-        colnames <- gsub(paste0('^', Biobase::lcPrefix(files)), '', files)
-        colnames <- gsub(paste0(Biobase::lcSuffix(colnames), '$'), '', colnames)
-    } else {
-      colnames <- names(files)
+load_telescope_reports <-
+  function(files,
+           colnames = names(files),
+           all_locs = NULL,
+           count_column = 'final_count') {
+    if (is.null(colnames)) {
+      # colnames not provided and `files` was not a named vector
+      colnames <- unique_names_from_file_list(files)
     }
-    count_list <- lapply(1:length(files), function(i){
-        report <- read.table(files[i], sep='\t', header=T, stringsAsFactors=F)
-        ret <- report[,count_column]
-        names(ret) <- report$transcript
-        ret
+
+    count_list <- lapply(1:length(files), function(i) {
+      report <-
+        read.table(
+          files[i],
+          sep = '\t',
+          header = T,
+          stringsAsFactors = F
+        )
+      ret <- report[, count_column]
+      names(ret) <- report$transcript
+      ret
     })
 
-    if(is.null(all_locs)) {
-        # locus list was not provided
-        all_locs <- unique(do.call(c, sapply(count_list, names)))
+    if (is.null(all_locs)) {
+      # locus list was not provided
+      all_locs <- unique(do.call(c, sapply(count_list, names)))
     }
 
-  count.df <- lapply(1:length(count_list), function(i){
-    cts <- count_list[[i]]
-    ret <- dplyr::left_join(
-      data.frame(transcript=all_locs, stringsAsFactors = F),
-      data.frame(transcript=names(cts), count=cts),
-      by='transcript'
-    )
-    ret[is.na(ret)] <- 0
-    # stopifnot(all(ret$transcript == all_locs))
-    ret$transcript <- NULL
-    names(ret) <- c(colnames[i])
-    ret
-  }) %>% dplyr::bind_cols()
+    count.df <- lapply(1:length(count_list), function(i) {
+      cts <- count_list[[i]]
+      ret <- dplyr::left_join(
+        data.frame(transcript = all_locs, stringsAsFactors = F),
+        data.frame(transcript = names(cts), count = cts),
+        by = 'transcript'
+      )
+      ret[is.na(ret)] <- 0
+      # stopifnot(all(ret$transcript == all_locs))
+      ret$transcript <- NULL
+      names(ret) <- c(colnames[i])
+      ret
+    }) %>% dplyr::bind_cols()
 
-  row.names(count.df) <- all_locs
-  count.df
-}
+    row.names(count.df) <- all_locs
+    count.df
+  }

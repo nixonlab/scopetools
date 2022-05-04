@@ -4,26 +4,37 @@
 \alias{load_telescope_reports}
 \title{Load counts from multiple Telescope reports}
 \usage{
-load_telescope_reports(files, count_column = "final_count", all_locs = NULL)
+load_telescope_reports(
+  files,
+  colnames = names(files),
+  all_locs = NULL,
+  count_column = "final_count"
+)
 }
 \arguments{
-\item{files}{A character vector with paths to the reports. If a named vector, the
-names will be used as the column names.}
+\item{files}{A character vector with paths to the reports.}
+
+\item{colnames}{Output column names. If \code{files} is a named vector, the names
+will be used as column names. Otherwise finds a unique string
+from the report filenames.}
+
+\item{all_locs}{A character vector with all genes/loci to be included
+in the output; typically this is a list of all loci in the annotation.
+If not provided, the loci will be the union of loci in all reports, in
+an arbitrary order.}
 
 \item{count_column}{The column in the Telescope report to use.
 Defaults is 'final_count'}
-
-\item{all_locs}{A character vector with the loci to include, possibly
-extracted from the annotation. If not provided, all loci appearing
-in the reports will be used in an arbitrary order.}
 }
 \value{
 A dataframe where the rows are genes/loci and the columns are
-reports. Typically each report will correspond to one sample.
+samples (when each report corresponds to one sample).
 }
 \description{
-This returns a dataframe where the rows are genes/loci with one column per
-report. (Typically each report corresponds to one sample). The  and the columns are
+This returns a dataframe where the rows are genes/loci and columns are
+samples. If \code{files} is a named vector, the names are used as sample
+names; otherwise sample names can be provided by \code{colnames}. If not
+provided, unique strings will be extracted from the report filenames.
 }
 \examples{
 ddir <- system.file("extdata", package="scopetools")
