@@ -12,6 +12,8 @@
 #'    create a new object with a lower cutoff.
 #' @param min.features Include cells where at least this many features are
 #'    detected.
+#' @param remove.nofeat Remove "no feature" category from Stellarscope counts.
+#'    Default is TRUE.
 #' @param TE_count_file File name for Stellarscope count matrix in MTX format.
 #'    Default is a file matching '*TE_counts.mtx' in `stellarscope_dir`.
 #' @param TE_feature_file File name for Stellarscope feature list in TSV
@@ -37,6 +39,7 @@ load_stellarscope_seurat <-
            project = 'StellarscopeProject',
            min.cells = 0,
            min.features= 0,
+           remove.nofeat = TRUE,
            TE_count_file = Sys.glob(file.path(stellarscope_dir, '*TE_counts.mtx')),
            TE_feature_file = Sys.glob(file.path(stellarscope_dir, '*features.tsv')),
            TE_barcode_file = Sys.glob(file.path(stellarscope_dir, '*barcodes.tsv')),
@@ -61,11 +64,20 @@ load_stellarscope_seurat <-
       features.TE <- data.frame(V1=features.TE[-rem, 1])
       counts.TE <- counts.TE[-rem,]
     }
+
+    if(remove.nofeat) {
+      rem <- which(features.TE$V1 == '__no_feature')
+      features.TE <- data.frame(V1=features.TE[-rem, 1])
+      counts.TE <- counts.TE[-rem,]
+    }
+
     stopifnot(nrow(features.TE) == nrow(counts.TE))
     stopifnot(nrow(barcodes.TE) == ncol(counts.TE))
 
     rownames(counts.TE) <- features.TE$V1
     colnames(counts.TE) <- barcodes.TE$V1
+
+
 
     features.TE <- data.frame(id=features.TE$V1, feattype='TE', symbol=features.TE$V1, te_class=TE_metadata[features.TE$V1, ]$te_class, te_family=TE_metadata[features.TE$V1, ]$family)
 

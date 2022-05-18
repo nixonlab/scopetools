@@ -10,6 +10,7 @@ load_stellarscope_seurat(
   project = "StellarscopeProject",
   min.cells = 0,
   min.features = 0,
+  remove.nofeat = TRUE,
   TE_count_file = Sys.glob(file.path(stellarscope_dir, "*TE_counts.mtx")),
   TE_feature_file = Sys.glob(file.path(stellarscope_dir, "*features.tsv")),
   TE_barcode_file = Sys.glob(file.path(stellarscope_dir, "*barcodes.tsv")),
@@ -33,6 +34,9 @@ create a new object with a lower cutoff.}
 
 \item{min.features}{Include cells where at least this many features are
 detected.}
+
+\item{remove.nofeat}{Remove "no feature" category from Stellarscope counts.
+Default is TRUE.}
 
 \item{TE_count_file}{File name for Stellarscope count matrix in MTX format.
 Default is a file matching '*TE_counts.mtx' in \code{stellarscope_dir}.}
