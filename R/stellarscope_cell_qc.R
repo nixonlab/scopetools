@@ -56,8 +56,13 @@ stellarscope_cell_qc <- function(object) {
 
   # (Use the outlier vectors directly)
   # The cell is excluded if isOutlier=TRUE for any of the three criteria:
-  # extreme RNA count, extreme feature count, high MT percentage
+  # extreme RNA count, extreme feature count, high MT percentage.
+  # NOTE: nCount_RNA is included in the logical expression since Seurat will
+  #       an error if no variables attached to the object are included. Should
+  #       evaluate to TRUE unless nCount_RNA is zero, which should be excluded
+  #       anyways.
   object <- subset(object,
-                   subset = !(qc.ncount_rna | qc.nfeature_rna | qc.percent_mt))
+                   subset = nCount_RNA &
+                     !(qc.ncount_rna | qc.nfeature_rna | qc.percent_mt))
   object
 }
