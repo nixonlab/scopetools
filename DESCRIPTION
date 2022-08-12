@@ -14,6 +14,7 @@ Imports:
     dplyr,
     magrittr,
     Matrix,
+    scater,
     Seurat,
     tidyr
 Suggests: 
