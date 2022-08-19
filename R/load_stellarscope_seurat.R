@@ -67,8 +67,10 @@ load_stellarscope_seurat <-
 
     if(remove.nofeat) {
       rem <- which(features.TE$V1 == '__no_feature')
-      features.TE <- data.frame(V1=features.TE[-rem, 1])
-      counts.TE <- counts.TE[-rem,]
+      if(length(rem)>0) {
+          features.TE <- data.frame(V1=features.TE[-rem, 1])
+          counts.TE <- counts.TE[-rem,]
+      }
     }
 
     stopifnot(nrow(features.TE) == nrow(counts.TE))
@@ -77,9 +79,17 @@ load_stellarscope_seurat <-
     rownames(counts.TE) <- features.TE$V1
     colnames(counts.TE) <- barcodes.TE$V1
 
-
-
-    features.TE <- data.frame(id=features.TE$V1, feattype='TE', symbol=features.TE$V1, te_class=TE_metadata[features.TE$V1, ]$te_class, te_family=TE_metadata[features.TE$V1, ]$family)
+    # Create TE feature metadata
+    meta.TE <- dplyr::left_join(
+      data.frame(id=rownames(counts.TE),
+                 feattype='TE',
+                 symbol=rownames(counts.TE)),
+      data.frame(id=rownames(TE_metadata),
+                 te_class=TE_metadata$te_class,
+                 te_family=TE_metadata$family),
+      by='id'
+    )
+    stopifnot(all(meta.TE$id == rownames(counts.TE)))
 
     dogenes <- TRUE
     if(length(GENE_count_file) == 0) {warning('Missing gene count matrix\n'); dogenes = dogenes & FALSE;}
@@ -89,7 +99,7 @@ load_stellarscope_seurat <-
     if(!dogenes) {
       warning('Gene counts are not loaded\n')
       ret <- Seurat::CreateSeuratObject(counts.TE, project=project, min.cells=min.cells, min.features=min.features)
-      ret[['RNA']] <- Seurat::AddMetaData(ret[['RNA']], features.TE)
+      ret[['RNA']] <- Seurat::AddMetaData(ret[['RNA']], meta.TE)
       return(ret)
     }
 
@@ -104,10 +114,17 @@ load_stellarscope_seurat <-
     rownames(counts.GE) <- features.GE$V1
     colnames(counts.GE) <- barcodes.GE$V1
 
-    features.GE <- data.frame(id=features.GE$V1, feattype='GE', symbol=features.GE$V2, te_class=NA, te_family=NA)
+    meta.GE <- data.frame(
+      id=features.GE$V1,
+      feattype='GE',
+      symbol=features.GE$V2,
+      te_class=NA,
+      te_family=NA
+    )
+    stopifnot(all(meta.GE$id == rownames(counts.GE)))
 
     all_bc <- intersect(colnames(counts.TE), colnames(counts.GE))
-    all_feat <- rbind(features.GE, features.TE)
+    all_feat <- rbind(meta.GE, meta.TE)
     all_feat$orig_id <- all_feat$id
     all_feat$id <- gsub('_', '-', all_feat$id)
     rownames(all_feat) <- all_feat$id
