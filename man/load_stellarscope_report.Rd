@@ -5,23 +5,30 @@
 \title{Load count matrix from Stellarscope output files}
 \usage{
 load_stellarscope_report(
-  dirname,
+  stellarscope_dir,
+  exp_tag = "stellarscope",
   count_file_suffix = "TE_counts.mtx",
   feature_file_suffix = "features.tsv",
   barcode_file_suffix = "barcodes.tsv"
 )
 }
 \arguments{
-\item{dirname}{Stellarscope output directory.}
+\item{stellarscope_dir}{Stellarscope output directory.}
 
-\item{count_file_suffix}{File name suffix for count matrix in MTX format. Default is 'TE_counts.mtx'.}
+\item{exp_tag}{Experiment tag used in stellarscope run. Default is "stellarscope".}
 
-\item{feature_file_suffix}{File name suffix for feature list. Default is 'features.tsv'.}
+\item{count_file_suffix}{File name suffix for count matrix in MTX format.
+Default is 'TE_counts.mtx'.}
 
-\item{barcode_file_suffix}{File name suffix for barcode list. Default is 'barcodes.tsv'.}
+\item{feature_file_suffix}{File name suffix for feature list. Default is
+'features.tsv'.}
+
+\item{barcode_file_suffix}{File name suffix for barcode list. Default is
+'barcodes.tsv'.}
 }
 \value{
-A sparse matrix of of class "dgTMatrix" with features as rows and cells as columns.
+A sparse matrix of of class "dgTMatrix" with features as rows and
+cells as columns.
 }
 \description{
 Load count matrix from Stellarscope output files
