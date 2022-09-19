@@ -7,16 +7,17 @@
 load_stellarscope_seurat(
   stellarscope_dir,
   starsolo_dir = NULL,
+  exp_tag = "stellarscope",
   project = "StellarscopeProject",
   min.cells = 0,
   min.features = 0,
   remove.nofeat = TRUE,
-  TE_count_file = Sys.glob(file.path(stellarscope_dir, "*TE_counts.mtx")),
-  TE_feature_file = Sys.glob(file.path(stellarscope_dir, "*features.tsv")),
-  TE_barcode_file = Sys.glob(file.path(stellarscope_dir, "*barcodes.tsv")),
-  GENE_count_file = Sys.glob(file.path(starsolo_dir, "*matrix.mtx")),
-  GENE_feature_file = Sys.glob(file.path(starsolo_dir, "*features.tsv")),
-  GENE_barcode_file = Sys.glob(file.path(starsolo_dir, "*barcodes.tsv")),
+  TE_count_filename = "*TE_counts.mtx",
+  TE_feature_filename = "*features.tsv",
+  TE_barcode_filename = "*barcodes.tsv",
+  GENE_count_filename = "*matrix.mtx",
+  GENE_feature_filename = "*features.tsv",
+  GENE_barcode_filename = "*barcodes.tsv",
   TE_metadata = data.frame(retro.hg38.v1, row.names = "locus"),
   GE_metadata = NULL
 )
@@ -24,7 +25,10 @@ load_stellarscope_seurat(
 \arguments{
 \item{stellarscope_dir}{Stellarscope output directory}
 
-\item{starsolo_dir}{STARsolo output directory}
+\item{starsolo_dir}{STARsolo output directory, optional.}
+
+\item{exp_tag}{Experiment tag used in stellarscope run.
+Default is "stellarscope".}
 
 \item{project}{Project name for the \code{Seurat} object}
 
@@ -38,23 +42,27 @@ detected.}
 \item{remove.nofeat}{Remove "no feature" category from Stellarscope counts.
 Default is TRUE.}
 
-\item{TE_count_file}{File name for Stellarscope count matrix in MTX format.
-Default is a file matching '*TE_counts.mtx' in \code{stellarscope_dir}.}
+\item{TE_count_filename}{File name pattern for TE count matrix (MTX format).
+May contain wildcards.Default is '*TE_counts.mtx'.}
 
-\item{TE_feature_file}{File name for Stellarscope feature list in TSV
-format. Default is a file matching '*features.tsv' in \code{stellarscope_dir}.}
+\item{TE_feature_filename}{File name pattern for TE feature list
+(tab-separated, features in first column). May contain wildcards.
+Default is '*features.tsv'.}
 
-\item{TE_barcode_file}{File name for Stellarscope barcode list in TSV
-format. Default is a file matching '*barcodes.tsv' in \code{stellarscope_dir}.}
+\item{TE_barcode_filename}{File name pattern for TE barcode list
+(tab-separated, barcodes in first column). May contain wildcards.
+Default is '*barcodes.tsv'.}
 
-\item{GENE_count_file}{File name for STARsolo count matrix in MTX format.
-Default is a file matching '*matrix.mtx' in \code{starsolo_dir}.}
+\item{GENE_count_filename}{File name pattern for gene count matrix
+(MTX format). May contain wildcards. Default is '*matrix.mtx'.}
 
-\item{GENE_feature_file}{File name for STARsolo feature list in TSV format.
-Default is a file matching '*features.tsv' in \code{starsolo_dir}.}
+\item{GENE_feature_filename}{File name pattern for gene feature list
+(tab-separated, features in first column). May contain wildcards.
+Default is '*features.tsv'.}
 
-\item{GENE_barcode_file}{File name for STARsolo barcode list in TSV format.
-Default is a file matching '*barcodes.tsv' in \code{starsolo_dir}.}
+\item{GENE_barcode_filename}{File name pattern for gene barcode list
+(tab-separated, barcodes in first column). May contain wildcards.
+Default is '*barcodes.tsv'.}
 
 \item{TE_metadata}{Data frame with metadata related to the TE features}
 
