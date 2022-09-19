@@ -7,24 +7,28 @@
 load_stellarscope_report(
   stellarscope_dir,
   exp_tag = "stellarscope",
-  count_file_suffix = "TE_counts.mtx",
-  feature_file_suffix = "features.tsv",
-  barcode_file_suffix = "barcodes.tsv"
+  count_filename = "*TE_counts.mtx",
+  feature_filename = "*features.tsv",
+  barcode_filename = "*barcodes.tsv"
 )
 }
 \arguments{
 \item{stellarscope_dir}{Stellarscope output directory.}
 
-\item{exp_tag}{Experiment tag used in stellarscope run. Default is "stellarscope".}
+\item{exp_tag}{Experiment tag used in stellarscope run.
+Default is "stellarscope".}
 
-\item{count_file_suffix}{File name suffix for count matrix in MTX format.
-Default is 'TE_counts.mtx'.}
+\item{count_filename}{File name pattern for count matrix (MTX format). May
+contain wildcards.
+Default is '*TE_counts.mtx'.}
 
-\item{feature_file_suffix}{File name suffix for feature list. Default is
-'features.tsv'.}
+\item{feature_filename}{File name pattern for feature list (tab-separated,
+features in first column). May contain wildcards.
+Default is '*features.tsv'.}
 
-\item{barcode_file_suffix}{File name suffix for barcode list. Default is
-'barcodes.tsv'.}
+\item{barcode_filename}{File name pattern for barcode list (tab-separated,
+barcodes in first column). May contain wildcards.
+Default is '*barcodes.tsv'.}
 }
 \value{
 A sparse matrix of of class "dgTMatrix" with features as rows and
