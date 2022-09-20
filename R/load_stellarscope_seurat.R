@@ -124,7 +124,6 @@ load_stellarscope_seurat <-
         by='id'
     ) %>%
         dplyr::mutate(feattype='GE',
-               symbol=id,
                te_class=NA,
                te_family=NA
         ) %>%
