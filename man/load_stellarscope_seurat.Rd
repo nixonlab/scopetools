@@ -19,7 +19,8 @@ load_stellarscope_seurat(
   GENE_feature_filename = "*features.tsv",
   GENE_barcode_filename = "*barcodes.tsv",
   TE_metadata = data.frame(retro.hg38.v1, row.names = "locus"),
-  GE_metadata = NULL
+  GE_metadata = NULL,
+  use.symbols = TRUE
 )
 }
 \arguments{
@@ -67,6 +68,10 @@ Default is '*barcodes.tsv'.}
 \item{TE_metadata}{Data frame with metadata related to the TE features}
 
 \item{GE_metadata}{Data frame with metadata related to the gene features}
+
+\item{use.symbols}{Use gene symbols as the gene ID. Duplicate symbols have
+sequential numbers appended (using \code{\link[base:make.unique]{base::make.unique()}}).
+Default is TRUE.}
 }
 \value{
 A \code{Seurat} object with counts from stellarscope and STARsolo.
@@ -75,4 +80,7 @@ A \code{Seurat} object with counts from stellarscope and STARsolo.
 This returns a \code{Seurat} object with raw counts from Stellarscope and
 STARsolo (if provided). Only cell barcodes present in both are
 retained. Feature metadata can also be included for TEs and genes.
+}
+\seealso{
+\code{\link[base:make.unique]{base::make.unique()}} for \code{use.symbols}
 }
