@@ -34,11 +34,17 @@
 #'    Default is '*barcodes.tsv'.
 #' @param TE_metadata Data frame with metadata related to the TE features
 #' @param GE_metadata Data frame with metadata related to the gene features
+#' @param use.symbols Use gene symbols as the gene ID. Duplicate symbols have
+#'    sequential numbers appended (using [base::make.unique()]).
+#'    Default is TRUE.
 #'
 #' @return A `Seurat` object with counts from stellarscope and STARsolo.
 #' @export
 #'
 #' @examples
+#'
+#' @seealso [base::make.unique()] for `use.symbols`
+#'
 load_stellarscope_seurat <-
   function(stellarscope_dir,
            starsolo_dir = NULL,
@@ -54,7 +60,9 @@ load_stellarscope_seurat <-
            GENE_feature_filename = '*features.tsv',
            GENE_barcode_filename = '*barcodes.tsv',
            TE_metadata = data.frame(retro.hg38.v1, row.names='locus'),
-           GE_metadata = NULL
+           GE_metadata = NULL,
+           use.symbols = TRUE
+
   ) {
     # Load TE count matrix
     counts.TE <- load_stellarscope_report(
@@ -83,7 +91,8 @@ load_stellarscope_seurat <-
         ) %>%
         dplyr::select(id=gene_id, feattype, symbol, te_class, te_family=family)
 
-    stopifnot(all(meta.TE$id == rownames(counts.TE)))
+    rownames(meta.TE) <- meta.TE$id
+    stopifnot(rownames(meta.TE) == rownames(counts.TE))
 
     # Other (starsolo) matrix
     dogenes <- !is.null(starsolo_dir)
@@ -129,7 +138,16 @@ load_stellarscope_seurat <-
         ) %>%
         dplyr::select(id, feattype, symbol, te_class, te_family)
 
+    rownames(meta.GE) <- meta.GE$id
     stopifnot(all(meta.GE$id == rownames(counts.GE)))
+
+    # use symbols as gene identifier
+    if(use.symbols) {
+        stopifnot('symbol' %in% names(meta.GE))
+        uid.symbol <- base::make.unique(meta.GE$symbol)
+        rownames(meta.GE) <- uid.symbol
+        rownames(counts.GE) <- uid.symbol
+    }
 
     # harmonize barcodes - found in both
     all_bc <- intersect(colnames(counts.TE), colnames(counts.GE))
@@ -140,20 +158,27 @@ load_stellarscope_seurat <-
     # replace NAs with blank, easier downstream
     all_feat[is.na(all_feat)] <- ''
 
-    all_feat$orig_id <- all_feat$id
-    all_feat$id <- gsub('_', '-', all_feat$id)
-    rownames(all_feat) <- all_feat$id
+    all_feat$orig_id <- rownames(all_feat)
+    rownames(all_feat) <- gsub('_', '-', rownames(all_feat))
 
     # TODO: this should be fixed for "union"
     counts <- rbind(counts.GE[,all_bc], counts.TE[,all_bc])
+    stopifnot(all(rownames(counts) == all_feat$orig_id))
+    rownames(counts) <- rownames(all_feat)
+    stopifnot(all(rownames(counts) == rownames(all_feat)))
 
     stopifnot(dim(counts)[1] == nrow(all_feat))
     stopifnot(dim(counts)[2] == length(all_bc))
 
-    ret <- Seurat::CreateSeuratObject(counts, project=project, min.cells=min.cells, min.features=min.features)
+    ret <- Seurat::CreateSeuratObject(
+        counts,
+        project=project,
+        min.cells=min.cells,
+        min.features=min.features
+    )
     ret[['RNA']] <- Seurat::AddMetaData(ret[['RNA']], all_feat)
 
-    stopifnot(all(rownames(ret) == all_feat$id))
+    stopifnot(all(rownames(ret) == rownames(all_feat)))
     stopifnot(all(colnames(ret) == all_bc))
     ret
   }
