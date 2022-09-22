@@ -28,22 +28,22 @@ stellarscope_cell_qc <- function(object) {
   # Select mitochondrial features and calculate mt percentage
   mt_feats <- grepl('^MT-', fmeta$symbol)
   object[['percent.mt']] <-
-    Seurat::PercentageFeatureSet(object, features = fmeta[mt_feats, 'id'])
+    Seurat::PercentageFeatureSet(object, features = rownames(fmeta)[mt_feats])
 
   # Select HERV features and calculate HERV percentage
   herv_feats <- !is.na(fmeta$te_class) & fmeta$te_class == 'LTR'
   object[['percent.HERV']] <-
-    Seurat::PercentageFeatureSet(object, features = fmeta[herv_feats, 'id'])
+    Seurat::PercentageFeatureSet(object, features = rownames(fmeta)[herv_feats])
 
   # Select L1 features and calculate L1 percentage
   l1_feats <- !is.na(fmeta$te_class) & fmeta$te_class == 'LINE'
   object[['percent.L1']] <-
-    Seurat::PercentageFeatureSet(object, features = fmeta[l1_feats, 'id'])
+    Seurat::PercentageFeatureSet(object, features = rownames(fmeta)[l1_feats])
 
   # Select TE features and calculate TE percentage
   te_feats <- fmeta$feattype == 'TE'
   object[['percent.TE']] <-
-    Seurat::PercentageFeatureSet(object, features = fmeta[te_feats, 'id'])
+    Seurat::PercentageFeatureSet(object, features = rownames(fmeta)[te_feats])
 
   # Determine which values in a numeric vector are outliers based on the
   # median absolute deviation (MAD).
