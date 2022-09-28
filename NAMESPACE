@@ -2,8 +2,10 @@
 
 export("%>%")
 export(load_labeled_mtx)
+export(load_star_counts)
 export(load_stellarscope_report)
 export(load_stellarscope_seurat)
 export(load_telescope_reports)
+export(load_tsv_counts)
 export(stellarscope_cell_qc)
 importFrom(magrittr,"%>%")
